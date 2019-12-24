@@ -9,8 +9,8 @@ public class Server {
 
     private Socket socket = null;
     private ServerSocket server = null;
-    private DataInputStream input = null;
-    private DataOutputStream output = null;
+    private DataInputStream inputStream = null;
+    private DataOutputStream outputStream = null;
 
     public Server(int port) {
 
@@ -22,21 +22,22 @@ public class Server {
             System.out.println("Waiting for a client ...");
             socket = server.accept();
             System.out.println("Client accepted.");
+            inputStream = new DataInputStream(socket.getInputStream());
+            outputStream = new DataOutputStream(socket.getOutputStream());
 
-            String serverResponse = "";
-            String clientResponse = "";
+
+            String serverResponse;
+            String clientResponse;
 
             while (true) {
                 try {
-                    input = new DataInputStream(socket.getInputStream());
-                    output = new DataOutputStream(socket.getOutputStream());
-                    clientResponse = input.readUTF();
+                    clientResponse = inputStream.readUTF();
                     System.out.println("Client >> " + clientResponse);
                     System.out.print("type: ");
                     serverResponse = scanner.nextLine();
                     if (serverResponse.equals("exit"))
                         break;
-                    output.writeUTF(serverResponse);
+                    outputStream.writeUTF(serverResponse);
                 } catch (IOException i) {
                     System.out.println(i);
                 }
@@ -44,13 +45,13 @@ public class Server {
             System.out.println("Closing connection.");
 
             socket.close();
-            input.close();
+            inputStream.close();
         } catch (IOException i) {
             System.out.println(i);
         }
     }
 
-    public static void main(String args[]) {
+    public static void main(String[] args) {
         Server server = new Server(5000);
     }
 

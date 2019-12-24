@@ -3,7 +3,6 @@ package com.company.phase1;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.Scanner;
@@ -11,13 +10,15 @@ import java.util.Scanner;
 public class Client {
 
     private Socket socket = null;
-    private DataInputStream dataInputStream = null;
-    private DataOutputStream dataOutputStream = null;
+    private DataInputStream inputStream = null;
+    private DataOutputStream outputStream = null;
 
     public Client(String address, int port) {
         Scanner scanner = new Scanner(System.in);
         try {
             socket = new Socket(address, port);
+            outputStream = new DataOutputStream(socket.getOutputStream());
+            inputStream = new DataInputStream(socket.getInputStream());
             System.out.println("Client is Connected...");
 
         } catch (UnknownHostException u) {
@@ -30,15 +31,14 @@ public class Client {
         String clientResponse = "";
         while (true) {
             try {
-                dataOutputStream = new DataOutputStream(socket.getOutputStream());
                 System.out.print("type: ");
                 clientResponse = scanner.nextLine();
-                dataOutputStream.writeUTF(clientResponse);
-                if (clientResponse.equals("exit"))
+                outputStream.writeUTF(clientResponse);
+                if (clientResponse.equals("exit")) {
                     break;
+                }
 
-                dataInputStream = new DataInputStream(socket.getInputStream());
-                serverResponse = dataInputStream.readUTF();
+                serverResponse = inputStream.readUTF();
                 System.out.println("Server >> " + serverResponse);
 
             } catch (IOException i) {
@@ -47,8 +47,8 @@ public class Client {
         }
 
         try {
-            dataInputStream.close();
-            dataOutputStream.close();
+            inputStream.close();
+            outputStream.close();
             socket.close();
         } catch (IOException i) {
             System.out.println(i);
